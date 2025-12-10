@@ -1,3 +1,6 @@
+/**
+ * https://adventofcode.com/2025/day/1
+ */
 import { splitLines } from '../utils/files.js';
 
 function getRotationParts(line) {
