@@ -17,14 +17,20 @@
  */
 
 // returns the number of digits in a number. For example, if num is 123, the function returns 3.
-function numDigits(num) {
+function getNumDigits(num) {
   return Math.floor(Math.log10(num)) + 1;
+}
+
+// returns the length of the segment that is repeated. For example, if num is 123456 and repeatCount is 2,
+// the function returns 3. If num is 12345678 and repeatCount is 3, the function returns 3.
+function getSegmentLength(numDigits, repeatCount) {
+  return Math.trunc(numDigits / repeatCount);
 }
 
 // repeats a number repeatCount times. For example, if num is 123 and repeatCount is 2,
 // the function returns 123123.
 function repeatNumber(num, repeatCount) {
-  const digits = numDigits(num);
+  const digits = getNumDigits(num);
   let result = num;
   for (let i = 1; i < repeatCount; i++) {
     result = result * Math.pow(10, digits) + num;
@@ -32,29 +38,22 @@ function repeatNumber(num, repeatCount) {
   return result;
 }
 
-function sumPeriodicNumbers(start, end, repeatCount, seenNumbers = new Set()) {
-  let sum = 0;
-  const startDigits = numDigits(start);
-  const splitter = Math.pow(10, Math.trunc(startDigits - startDigits / repeatCount));
-  let n = 0;
-  if (startDigits % repeatCount === 0) {
-    const firstSegment = Math.trunc(start / splitter);
-    if (repeatNumber(firstSegment, repeatCount) < start) {
-      n = firstSegment + 1;
+// returns the first segment of a number that can be repeated to form a periodic number that is greater
+// than the number itself. For example, if num is 123456 and repeatCount is 2, the function returns 123.
+// If num is 12345678 and repeatCount is 3, the function returns 123.
+function getFirstSegment(num, repeatCount) {
+  const numDigits = getNumDigits(num);
+  const segmentLength = getSegmentLength(numDigits, repeatCount);
+  if (numDigits % repeatCount === 0) {
+    const segment = Math.trunc(num / Math.pow(10, numDigits - segmentLength));
+    if (repeatNumber(segment, repeatCount) < num) {
+      return segment + 1;
     } else {
-      n = firstSegment;
+      return segment;
     }
   } else {
-    n = splitter;
+    return Math.pow(10, segmentLength);
   }
-  while (repeatNumber(n, repeatCount) <= end) {
-    if (!seenNumbers.has(repeatNumber(n, repeatCount))) {
-      seenNumbers.add(repeatNumber(n, repeatCount));
-      sum += repeatNumber(n, repeatCount);
-    }
-    n++;
-  }
-  return sum;
 }
 
 export function part1(data) {
@@ -62,22 +61,34 @@ export function part1(data) {
   let totalScore = 0;
   for (const range of ranges) {
     const [start, end] = range.split('-').map(Number);
-    totalScore += sumPeriodicNumbers(start, end, 2);
+    let segment = getFirstSegment(start, 2);
+    let periodicNum = repeatNumber(segment, 2);
+    while (periodicNum <= end) {
+      totalScore += periodicNum;
+      segment += 1;
+      periodicNum = repeatNumber(segment, 2);
+    }
   }
   console.log(`Part 1: ${totalScore}`);
 }
 
 export function part2(data) {
+  const seen = new Set();
   const ranges = data.split(',');
   let totalScore = 0;
   for (const range of ranges) {
     const [start, end] = range.split('-').map(Number);
-    const seenNumbers = new Set();
-    for (let repeatCount = 2; repeatCount <= numDigits(start); repeatCount++) {
-      totalScore += sumPeriodicNumbers(start, end, repeatCount, seenNumbers);
-    }
-    for (let repeatCount = numDigits(start) + 1; repeatCount <= numDigits(end); repeatCount++) {
-      totalScore += sumPeriodicNumbers(Math.pow(10, repeatCount - 1), end, repeatCount, seenNumbers);
+    for (let repeatCount = 2; repeatCount <= getNumDigits(end); repeatCount++) {
+      let segment = getFirstSegment(start, repeatCount);
+      let periodicNum = repeatNumber(segment, repeatCount);
+      while (periodicNum <= end) {
+        if (!seen.has(periodicNum)) {
+          seen.add(periodicNum);
+          totalScore += periodicNum;
+        }
+        segment += 1;
+        periodicNum = repeatNumber(segment, repeatCount);
+      }
     }
   }
   console.log(`Part 2: ${totalScore}`);
