@@ -1,5 +1,9 @@
 /**
  * https://adventofcode.com/2025/day/3
+ * 
+ * To solve this one, we can go in reverse order and create the largest number possible in
+ * a line of size n while preserving relative order. The meat of this solution ends up in
+ * getLargestNumber.
  */
 import { splitLines } from '../utils/files.js';
 
@@ -7,6 +11,9 @@ function arrayToNumber(arr) {
   return arr.reduce((acc, digit) => acc * 10 + digit, 0);
 }
 
+// Given a new number, adds it to the digits array to make the largest
+// number possible while preserving relative order. number is placed in
+// currentPos, if at all.
 function addNumberToDigits(digits, number, currentPos = 0) {
   if (currentPos >= digits.length) {
     return;
