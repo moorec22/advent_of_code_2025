@@ -8,6 +8,19 @@
  * 
  * For part 2, I'm going to start with the naive solution: get the list of accessible rolls,
  * remove them, repeat until no more rolls can be removed. This process is O((n * m)^2).
+ * 
+ * If we instead preprocess all rolls into a set, we can access only the rolls that are present
+ * in O(1) time. The algorithm with the set would look something like:
+ * 
+ * 1. for each roll in the set:
+ *   a. check adjacent rolls in the set
+ *   b. if less than 4 adjacent rolls, add to accessible set
+ * 
+ * This is O(n * m) for the preprocessing step, and O(k) for the accessible rolls step, where k is
+ * the number of rolls present. k == n * m in the worst case, so this is still O(n * m) for part 1.
+ * For part 2, we repeat the accessible rolls step until no more rolls can be removed. Though this
+ * is nominally more efficient, it is still O((n * m)^2). In the end I decided to keep the naive
+ * solution.
  */
 import { splitLines } from '../utils/files.js';
 
@@ -15,6 +28,8 @@ function inRange(lines, x, y) {
   return x >= 0 && x < lines.length && y >= 0 && y < lines[0].length;
 }
 
+// Returns a set of accessible rolls, given the current grid and the set of removed rolls. A
+// roll is accessible if it has less than 4 adjacent rolls.
 function getAccessibleRolls(lines, removedRolls = new Set()) {
   const accessibleRolls = new Set();
   for (let i = 0; i < lines.length; i++) {
