@@ -17,6 +17,10 @@
  * Finally, for each ID, do a binary search to find if it's in a range. O(m * log n).
  * In total, the runtime is O((m + n) log n), where m is the number of IDs and n is the number
  * of ranges.
+ * 
+ * With our preprocessing, part 2 is simple: we just need to count the number of IDs that can
+ * be fresh. That means we have O(n log n) preprocessing time, and O(n) time to count the fresh IDs.
+ * In total, O(n log n) time.
  */
 import { splitLines } from '../utils/files.js';
 
@@ -88,4 +92,12 @@ export function part1(data) {
 }
 
 export function part2(data) {
+  const lines = splitLines(data);
+  const { ranges, } = getInitialRangesAndIds(lines);
+  const mergedRanges = mergeRanges(ranges);
+  let totalCovered = 0;
+  for (let range of mergedRanges) {
+    totalCovered += range[1] - range[0] + 1;
+  }
+  console.log(`Part 2: ${totalCovered}`);
 }
